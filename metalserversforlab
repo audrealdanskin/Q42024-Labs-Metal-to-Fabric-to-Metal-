@@ -14,7 +14,7 @@ provider "equinix" {
 }
 
 #specs of server and machine  
-  resource "equinix_metal_device" "lab1" {
+  resource "equinix_metal_device" "lab1da" {
   hostname = "audreametal1"
   plan = "c3.small.x86"
   metro = "da"
@@ -22,10 +22,10 @@ provider "equinix" {
   billing_cycle = "hourly"
   project_id = "myprojectid"
 }
-  resource "equinix_metal_device" "lab1" {
+  resource "equinix_metal_device" "lab1dc" {
   hostname = "audreametal1"
   plan = "c3.small.x86"
-  metro = "sv"
+  metro = "dc"
   operating_system = "ubuntu_20_04"
   billing_cycle = "hourly"
   project_id = "myprojectid"
@@ -37,9 +37,9 @@ resource "equinix_metal_vlan" "vlan1DA" {
   vxlan      = "101"
 }
 
-resource "equinix_metal_vlan" "vlan2SV" {
-  description = "VLAN in SV"
-  metro = "sv"
+resource "equinix_metal_vlan" "vlan2dc" {
+  description = "VLAN in dc"
+  metro = "dc"
   project_id = "myprojectid"
   vxlan      = "101"
 }
