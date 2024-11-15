@@ -1,3 +1,5 @@
+# define provider version
+
 terraform {
   required_providers {
     equinix = {
