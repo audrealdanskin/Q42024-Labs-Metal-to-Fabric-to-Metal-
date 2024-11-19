@@ -37,24 +37,10 @@ resource "equinix_metal_device" "test2" {
   project_id       = "my_project_id"
 }
 
-resource "equinix_metal_vlan" "vlan1" {
-  description = "VLAN in Dallas"
-  metro       = "da"
-  project_id  = "my_project_id"
-  vxlan       = "812"
-}
-
-resource "equinix_metal_vlan" "vlan2" {
-  description = "VLAN in Washington"
-  metro       = "dc"
-  project_id  = "my_project_id"
-  vxlan       = "812"
-
-}
 
 resource "equinix_metal_device_network_type" "test1" {
   device_id = equinix_metal_device.test1.id
-  type      = "hybrid"
+  type      = "hybrid-bonded"
 }
 
 resource "equinix_metal_port_vlan_attachment" "test1" {
@@ -65,7 +51,7 @@ resource "equinix_metal_port_vlan_attachment" "test1" {
 
 resource "equinix_metal_device_network_type" "test2" {
   device_id = equinix_metal_device.test2.id
-  type      = "hybrid"
+  type      = "hybrid-bonded"
 }
 
 resource "equinix_metal_port_vlan_attachment" "test2" {
