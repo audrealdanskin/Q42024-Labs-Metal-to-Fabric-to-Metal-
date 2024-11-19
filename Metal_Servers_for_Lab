@@ -10,7 +10,7 @@ terraform {
 provider "equinix" {
   # Configuration options 
   # Credentials for only Equinix Metal resources 
-  auth_token = "myauthtoken"
+  auth_token = "my_auth_token"
 }
 
 #specs of server and machine  
@@ -20,7 +20,7 @@ provider "equinix" {
   metro = "da"
   operating_system = "ubuntu_20_04"
   billing_cycle = "hourly"
-  project_id = "myprojectid"
+  project_id = "my_project_id"
 }
   resource "equinix_metal_device" "lab1dc" {
   hostname = "audreametal1"
@@ -28,19 +28,19 @@ provider "equinix" {
   metro = "dc"
   operating_system = "ubuntu_20_04"
   billing_cycle = "hourly"
-  project_id = "myprojectid"
+  project_id = "my_project_id"
 
 resource "equinix_metal_vlan" "vlan1DA" {
   description = "VLAN in da"
   metro = "da"
-  project_id = "myprojectid"
+  project_id = "my_project_id"
   vxlan      = "434"
 }
 
 resource "equinix_metal_vlan" "vlan2dc" {
   description = "VLAN in Washington"
   metro = "dc"
-  project_id = "myprojectid"
+  project_id = "my_project_id"
   vxlan      = "434"
 }
 resource "equinix_metal_device_network_type" "test1" {
