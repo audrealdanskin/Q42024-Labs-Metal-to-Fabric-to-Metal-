@@ -1,3 +1,8 @@
+}
+resource "equinix_metal_vlan" "audreatometal2" {
+  project_id = "my_project_id"
+  metro      = "DA"
+}
 resource "equinix_metal_connection" "audreametal2" {
   name               = "tf-metal-from-port"
   project_id         = "my_project_id"
@@ -7,5 +12,5 @@ resource "equinix_metal_connection" "audreametal2" {
   speed              = "200Mbps"
   service_token_type = "z_side"
   contact_email      = "adanskin@equinix.com"
-  vlans              = [equinix_metal_vlan.vlan1000.vxlan]
+  vlans              = [equinix_metal_vlan.audreatometal2.vxlan]
 }
