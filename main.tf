@@ -100,3 +100,42 @@ resource "equinix_metal_connection" "example" {
   contact_email      = "adanskin@equinix.com"
   vlans              = [equinix_metal_vlan.vlan2.vxlan]
 }
+
+
+###use token to create VC
+
+data "equinix_fabric_port" "aside_port" {
+  uuid = a_side_port_UUID
+}
+resource "equinix_fabric_connection" "this" {
+  name = "tf-metalport-fabric"
+  type = "EVPL_VC"
+  bandwidth = 50
+  notifications {
+    type   = "ALL"
+    emails = ["adanskin@@equinix.com"]
+  }
+  order {
+    purchase_order_number = ""
+  }
+  a_side {
+    access_point {
+      type = "COLO"
+      port {
+        uuid = data.equinix_fabric_port.aside_port.uuid
+      }
+      link_protocol {
+        type     = "DOT1Q"
+        vlan_tag = "1040"
+      }
+      location {
+        metro_code  = "DC"
+      }
+    }
+  }
+  z_side {
+    service_token {
+      uuid = "equinix_metal_connection.example.service_tokens.0.id"
+    }
+  }
+}
