@@ -1,16 +1,13 @@
-}
-resource "equinix_metal_vlan" "audreatometal2" {
-  project_id = "my_project_id"
-  metro      = "DA"
-}
-resource "equinix_metal_connection" "audreametal2" {
-  name               = "tf-metal-from-port"
-  project_id         = "my_project_id"
+## Request a Metal connection and get a z-side token from Metal
+
+resource "equinix_metal_connection" "example" {
+  name               = "audrea-metal-port-tf"
+  project_id         =  "my_project_id"
   type               = "shared"
   redundancy         = "primary"
-  metro              = "DA"
-  speed              = "200Mbps"
+  metro              =  "dc"
+  speed              = "10Gbps"
   service_token_type = "z_side"
   contact_email      = "adanskin@equinix.com"
-  vlans              = [equinix_metal_vlan.audreatometal2.vxlan]
+  vlans              = [equinix_metal_vlan.vlan2.vxlan]
 }
