@@ -19,19 +19,18 @@ provider "equinix" {
 }
 
 resource "equinix_metal_vlan" "vlan1" {
-  project_id = "my_project_id"
-  metro      = "DA"
-  vxlan  = 1040
+  project_id = var.metal_project_id
+  metro      = var.metro1
+  vxlan  = var.vxlan
 }
 
-#specs of server and machine
 resource "equinix_metal_device" "metal_test1" {
   hostname         = "test1"
-  plan             = "m3.small.x86"
-  metro            = "DA"
-  operating_system = "ubuntu_20_04"
+  plan             = var.plan
+  metro            = var.metro1
+  operating_system = var.operating_system
   billing_cycle    = "hourly"
-  project_id       = "my_project_id"
+  project_id       = var.metal_project_id
   user_data = format("#!/bin/bash\napt update\napt install vlan\nmodprobe 8021q\necho '8021q' >> /etc/modules-load.d/networking.conf\nip link add link bond0 name bond0.%g type vlan id %g\nip addr add 192.168.100.1/24 brd 192.168.100.255 dev bond0.%g\nip link set dev bond0.%g up", equinix_metal_vlan.vlan1.vxlan, equinix_metal_vlan.vlan1.vxlan, equinix_metal_vlan.vlan1.vxlan, equinix_metal_vlan.vlan1.vxlan)
 }
 
@@ -46,18 +45,18 @@ resource "equinix_metal_port_vlan_attachment" "vlan_attach_test1" {
 }
 
 resource "equinix_metal_vlan" "vlan2" {
-  metro       = "DC"
-  project_id  = "my_project_id"
-  vxlan       = 1040
+  metro      = var.metro2
+  project_id  = var.metal_project_id
+  vxlan       = var.vxlan
 }
 
 resource "equinix_metal_device" "metal_test2" {
   hostname         = "test2"
-  plan             = "m3.small.x86"
-  metro            = "dc"
-  operating_system = "ubuntu_20_04"
+  plan             = var.plan
+  metro            =  var.metro2
+  operating_system =  var.operating_system
   billing_cycle    = "hourly"
-  project_id       = "my_project_id"
+  project_id       = var.metal_project_id
    user_data = format("#!/bin/bash\napt update\napt install vlan\nmodprobe 8021q\necho '8021q' >> /etc/modules-load.d/networking.conf\nip link add link bond0 name bond0.%g type vlan id %g\nip addr add 192.168.100.2/24 brd 192.168.100.255 dev bond0.%g\nip link set dev bond0.%g up", equinix_metal_vlan.vlan2.vxlan, equinix_metal_vlan.vlan2.vxlan, equinix_metal_vlan.vlan2.vxlan,equinix_metal_vlan.vlan2.vxlan)
 }
 
@@ -74,46 +73,41 @@ resource "equinix_metal_port_vlan_attachment" "vlan_attach_test2" {
 
 ## Create VC via dedciated port in metro1
 /* this is the "Interconnection ID" of the "DA-Metal-to-Fabric-Dedicated-Redundant-Port" via Metal's portal*/
-locals {
-  conn_id1 = "connection_id"
+data "equinix_metal_connection" "metro1_port" {
+  connection_id = var.conn_id
 }
-data "equinix_metal_connection" "dametro1_port" {
-  connection_id = local.conn_id1
-}
-resource "equinix_metal_virtual_circuit" "dametro1_vc" {
-  connection_id = local.conn_id1
-  project_id    = "_my_project_id"
-  port_id       = "connection_id"
-  vlan_id       = "equinix_metal_vlan.vlan1.vxlan"
-  nni_vlan      = "1040"
+
+resource "equinix_metal_virtual_circuit" "metro1_vc" {
+  connection_id = var.conn_id
+  project_id    = var.metal_project_id
+  port_id       = data.equinix_metal_connection.metro1_port.ports[0].id
+  vlan_id       = equinix_metal_vlan.vlan1.vxlan
+  nni_vlan      = equinix_metal_vlan.vlan1.vxlan
   name          = "adanskin-tf-vc"
 }
 ## Request a Metal connection and get a z-side token from Metal
 resource "equinix_metal_connection" "example" {
-  name               = "audrea-metal-port-tf"
-  project_id         =  "my_project_id"
+  name               = "audrea-tf-metal-port"
+  project_id         = var.metal_project_id
   type               = "shared"
   redundancy         = "primary"
-  metro              =  "dc"
+  metro              = var.metro2
   speed              = "10Gbps"
   service_token_type = "z_side"
   contact_email      = "adanskin@equinix.com"
   vlans              = [equinix_metal_vlan.vlan2.vxlan]
 }
 
+## Use the token from "equinix_metal_connectio.example" to setup VC in fabric portal:
+ /* A-side port is  your Metal owned dedicated port in Equinix Fabric portal */
 
-###use token to create VC
-
-data "equinix_fabric_port" "aside_port" {
-  uuid = a_side_port_UUID
-}
 resource "equinix_fabric_connection" "this" {
   name = "tf-metalport-fabric"
   type = "EVPL_VC"
   bandwidth = 50
   notifications {
     type   = "ALL"
-    emails = ["adanskin@@equinix.com"]
+    emails = ["adanskin@equinix.com"]
   }
   order {
     purchase_order_number = ""
@@ -122,20 +116,20 @@ resource "equinix_fabric_connection" "this" {
     access_point {
       type = "COLO"
       port {
-        uuid = data.equinix_fabric_port.aside_port.uuid
+        uuid = var.aside_port
       }
       link_protocol {
         type     = "DOT1Q"
-        vlan_tag = "1040"
+        vlan_tag = equinix_metal_vlan.vlan1.vxlan
       }
       location {
-        metro_code  = "DC"
+        metro_code  = var.metro1
       }
     }
   }
   z_side {
     service_token {
-      uuid = "equinix_metal_connection.example.service_tokens.0.id"
+      uuid = equinix_metal_connection.example.service_tokens.0.id
     }
   }
 }
