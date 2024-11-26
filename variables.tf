@@ -55,13 +55,13 @@ variable "vxlan" {
 variable "conn_id" {
   type        = string
   description = "Metal's connection ID in metal's portal"
-  default     = "8b255653-4128-4101-ac3b-1e6fabf01341"
+  default     = "go to metal portal and retrieve"
 }
 
 variable "aside_port" {
   type        = string
   description = "Metal's dedicated port ID in fabric portal"
-  default     = "cda2f88f-4ff4-ff45-f2e0-320a5c00a3ed"
+  default     = "go to fabric portal and retrieve"
 }
 
 
