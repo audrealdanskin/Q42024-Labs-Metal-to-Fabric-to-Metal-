@@ -48,7 +48,7 @@ variable "metro2" {
 
 variable "vxlan" {
   type        = string
-  description = "Metal's Metro location you want to deploy your servers to"
+  description = "vlan number for hosts"
   default     = "1040"
 }
 
